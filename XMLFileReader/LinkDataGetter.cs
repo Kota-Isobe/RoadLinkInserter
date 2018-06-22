@@ -8,12 +8,12 @@ using System.Data;
 
 namespace XMLFileReader
 {
-    class AltDataGetter
+    class LinkDataGetter
     {
         private SqlConnection sqlConnection;
         private MainForm mainform;
 
-        public AltDataGetter(SqlConnection connection, MainForm form1)
+        public LinkDataGetter(SqlConnection connection, MainForm form1)
         {
             this.sqlConnection = connection;
             this.mainform = form1;

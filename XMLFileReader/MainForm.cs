@@ -16,12 +16,12 @@ namespace XMLFileReader
         public MainForm()
         {
             InitializeComponent();
-            insertdb = new AltDataGetter(this.sqlConnection1, this);
+            insertdb = new LinkDataGetter(this.sqlConnection1, this);
             label_state.Text = "";
             label1.Text = "";
         }
 
-        private AltDataGetter insertdb;
+        private LinkDataGetter insertdb;
         private string[] filefullnames;//選択したファイルの絶対パス
         private string[] filenames;
 
