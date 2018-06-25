@@ -19,11 +19,9 @@ namespace XMLFileReader
             this.mainform = form1;
         }
 
-        //未
-
-        public void InsertAltitudeData(DataTable dt)
+        public void InsertLinkData(DataTable dt)
         {
-            mainform.Label_state = "ALTITUDE_10M_MESH_testに挿入中";
+            mainform.Label_state = "LINKS_testに挿入中";
             Application.DoEvents();
 
             try
@@ -32,7 +30,7 @@ namespace XMLFileReader
 
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnection))
                 {
-                    bulkCopy.DestinationTableName = "ALTITUDE_10M_MESH_test";
+                    bulkCopy.DestinationTableName = "LINKS_test";
 
                     bulkCopy.WriteToServer(dt);
                 }
@@ -45,9 +43,9 @@ namespace XMLFileReader
             mainform.Label_state = "挿入終了";
         }
 
-        public void AltitudeDataGetter(DataTable dt)
+        public void LinksDataGetter(DataTable dt)
         {
-            mainform.Label_state = "ALTITUDE_10M_MESH_testに挿入中";
+            mainform.Label_state = "LINKS_testに挿入中";
             Application.DoEvents();
 
             try
@@ -56,7 +54,7 @@ namespace XMLFileReader
 
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnection))
                 {
-                    bulkCopy.DestinationTableName = "ALTITUDE_10M_MESH_test";
+                    bulkCopy.DestinationTableName = "LINKS_test";
 
                     bulkCopy.WriteToServer(dt);
                 }

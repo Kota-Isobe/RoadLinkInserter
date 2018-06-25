@@ -75,7 +75,7 @@
             // 
             // sqlConnection1
             // 
-            this.sqlConnection1.ConnectionString = "Data Source=ECOLOGDB2016;Initial Catalog=ECOLOGDBver2;Integrated Security=True";
+            this.sqlConnection1.ConnectionString = "Data Source=ECOLOGDB2016;Initial Catalog=ECOLOGDBver3;Integrated Security=True";
             this.sqlConnection1.FireInfoMessageEventOnUserErrors = false;
             // 
             // label1
@@ -98,7 +98,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "10m Mesh Altitude Inserter";
+            this.Text = "RoadLinkInserter";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
