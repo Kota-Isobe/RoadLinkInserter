@@ -36,7 +36,6 @@ namespace XMLFileReader
             {
 
                 openFileDialog1.InitialDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);//デスクトップを初期表示
-                //openFileDialog1.InitialDirectory = @"C:\";//Cドライブを初期表示
                 openFileDialog1.Filter = "datファイル|*.xml|すべてのファイル|*.*";
                 openFileDialog1.RestoreDirectory = true;//カレントディレクトリをプログラムのあるフォルダに戻す
                 openFileDialog1.Multiselect = true;
@@ -68,29 +67,25 @@ namespace XMLFileReader
         private void button1_Click(object sender, EventArgs e)
         {
             int count = 0;
-            string mesh = null;
-            string lowerCorner = null;
-            string upperCorner = null;
-            string high = null;
-            string tupleList = null;
-
-            double LowerLatitude;
-            double UpperLatitude;
-            double LowerLongitude;
-            double UpperLongitude;
-
-            int maxX = 0;
-            int maxY = 0;  
+            string id = null;
+            string posList = null;
+            string type = null;
+            string rdCtg = null;
+            string state = null;
+            string rnkWidth = null;
+            string tollSelect = null;
 
             foreach (string filefullname in filefullnames)
             {
                 DataTable dt = new DataTable();
-                //dt.Columns.Add(new DataColumn("MESH_ID"));
-                dt.Columns.Add(new DataColumn("LOWER_LATITUDE"));
-                dt.Columns.Add(new DataColumn("LOWER_LONGITUDE"));
-                dt.Columns.Add(new DataColumn("UPPER_LATITUDE"));
-                dt.Columns.Add(new DataColumn("UPPER_LONGITUDE"));
-                dt.Columns.Add(new DataColumn("ALTITUDE"));
+                dt.Columns.Add(new DataColumn("LINK_ID"));
+                dt.Columns.Add(new DataColumn("LATITUDE"));
+                dt.Columns.Add(new DataColumn("LONGITUDE"));
+                dt.Columns.Add(new DataColumn("ROAD_TYPE"));
+                dt.Columns.Add(new DataColumn("ROAD_CATEGORY"));
+                dt.Columns.Add(new DataColumn("ROAD_STATE"));
+                dt.Columns.Add(new DataColumn("ROAD_WIDTH"));
+                dt.Columns.Add(new DataColumn("TOLL"));
 
                 label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
                 label_state.Text = filenames[count] + "を読み込み中";
@@ -105,109 +100,75 @@ namespace XMLFileReader
                 {
                     if (reader.NodeType == XmlNodeType.Element)
                     {
-                        if (reader.LocalName.Equals("mesh"))
+                        if (reader.LocalName.Equals("rID")) //タイプ名を指定
                         {
-                            mesh = reader.ReadString();
+                            id = reader.ReadString();     //一致したタイプ名の中の値を取得
                         }
 
-                        if (reader.LocalName.Equals("lowerCorner"))
+                        if (reader.LocalName.Equals("posList"))
                         {
-                            lowerCorner = reader.ReadString();
+                            posList = reader.ReadString();
                         }
 
-                        if (reader.LocalName.Equals("upperCorner"))
+                        if (reader.LocalName.Equals("type"))
                         {
-                            upperCorner = reader.ReadString();
+                            type = reader.ReadString();
                         }
 
-                        if (reader.LocalName.Equals("high"))
+                        if (reader.LocalName.Equals("rdCtg"))
                         {
-                            high = reader.ReadString();
+                            rdCtg = reader.ReadString();
                         }
 
-                        if (reader.LocalName.Equals("tupleList"))
+                        if (reader.LocalName.Equals("state"))
                         {
-                            tupleList = reader.ReadString();
+                            state = reader.ReadString();
+                        }
+
+                        if (reader.LocalName.Equals("rnkWidth"))
+                        {
+                            rnkWidth = reader.ReadString();
+
+                            if (reader.LocalName.Equals("tollSelect"))
+                            {
+                                tollSelect = reader.ReadString();
+                            }
                         }
                     }
-                }
 
-                reader.Close();
+                    reader.Close();
 
-                string[] split = lowerCorner.Split(new char[] { ' ' });
+                    int x = 0;
+                    int num = 0;
 
-                LowerLatitude = double.Parse(split[0]);
-                LowerLongitude = double.Parse(split[1]);
 
-                split = upperCorner.Split(new char[] { ' ' });
-
-                UpperLatitude = double.Parse(split[0]);
-                UpperLongitude = double.Parse(split[1]);
-
-                split = high.Split(new char[] { ' ' });
-
-                maxX = Int32.Parse(split[0]);
-                maxY = Int32.Parse(split[1]);
-
-                split = tupleList.Split(new char[] { '\n' });
-
-                string[] altitude;
-                double delta = 1.0 / 9000;
-                delta = Math.Round(delta, 10, MidpointRounding.AwayFromZero);
-
-                double lowerlati = UpperLatitude;
-                double lowerlongi = LowerLongitude;
-                double upperlati = UpperLatitude;
-                double upperlongi = LowerLongitude;
-                int x = 0;
-                int num = 0;
-
-                lowerlati = upperlati - delta;
-
-                for (int i = 0; i < split.Length; i++)
-                {
-                    if (!(split[i].Equals("") || split[i].Equals(" ")))
+                    for (int i = 0; i < x; i++)
                     {
-                        if (x == maxX + 1)
-                        {
-                            upperlati = lowerlati;
-                            lowerlati = upperlati - delta;
-                            lowerlongi = LowerLongitude;
-                            x = 0;
-                        }
-
-                        upperlongi = lowerlongi + delta;
-                        altitude = split[i].Split(new char[] { ',' });
-
-                        if (altitude[1] != "-9999.00")
-                        {
-                            DataRow dr = dt.NewRow();
-                            //dr["MESH_ID"] = mesh;
-                            dr["LOWER_LATITUDE"] = Math.Round(lowerlati, 5, MidpointRounding.AwayFromZero);
-                            dr["LOWER_LONGITUDE"] = Math.Round(lowerlongi, 5, MidpointRounding.AwayFromZero);
-                            dr["UPPER_LATITUDE"] = Math.Round(upperlati, 5, MidpointRounding.AwayFromZero);
-                            dr["UPPER_LONGITUDE"] = Math.Round(upperlongi, 5, MidpointRounding.AwayFromZero);
-                            dr["ALTITUDE"] = altitude[1];
-
-                            dt.Rows.Add(dr);
-                        }
-                        lowerlongi = upperlongi;
+                        DataRow dr = dt.NewRow();
+                        dr["LINK_ID"] = id;
+                        dr["LATITUDE"] = ;
+                        dr["LONGITUDE"] = ;
+                        dr["ROAD_TYPE"] = type;
+                        dr["ROAD_CATEGORY"] = rdCtg;
+                        dr["ROAD_STATE"] = state;
+                        dr["ROAD_WIDTH"] = rnkWidth;
+                        dr["TOLL"] = tollSelect;
+                        dt.Rows.Add(dr);
 
                         num++;
                         x++;
                     }
+
+                    insertdb.InsertLinkData(dt);
+                    //DataTable_to_csv(dt);//チェック用
+
+                    count++;
                 }
 
-                insertdb.InsertAltitudeData(dt);
-                //DataTable_to_csv(dt);//チェック用
-
-                count++;
+                label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
+                label_state.Text = "";
             }
-
-            label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
-            label_state.Text = "";
         }
-
         #region DataTableからcsvファイルを作成
         private void DataTable_to_csv(DataTable dt)
         {
