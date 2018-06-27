@@ -73,7 +73,7 @@ namespace XMLFileReader
             string rdCtg = null;
             string state = null;
             string rnkWidth = null;
-            string tollSelect = null;
+            string tollSect = null;
 
             foreach (string filefullname in filefullnames)
             {
@@ -128,43 +128,47 @@ namespace XMLFileReader
                         if (reader.LocalName.Equals("rnkWidth"))
                         {
                             rnkWidth = reader.ReadString();
-
-                            if (reader.LocalName.Equals("tollSelect"))
-                            {
-                                tollSelect = reader.ReadString();
-                            }
                         }
+
+                        if (reader.LocalName.Equals("tollSect"))
+                        {
+                            tollSect = reader.ReadString();
+                        }
+
                     }
-
-                    reader.Close();
-
-                    int x = 0;
-                    int num = 0;
-
-
-                    for (int i = 0; i < x; i++)
-                    {
-                        DataRow dr = dt.NewRow();
-                        dr["LINK_ID"] = id;
-                        dr["LATITUDE"] = ;
-                        dr["LONGITUDE"] = ;
-                        dr["ROAD_TYPE"] = type;
-                        dr["ROAD_CATEGORY"] = rdCtg;
-                        dr["ROAD_STATE"] = state;
-                        dr["ROAD_WIDTH"] = rnkWidth;
-                        dr["TOLL"] = tollSelect;
-                        dt.Rows.Add(dr);
-
-                        num++;
-                        x++;
-                    }
-
-                    insertdb.InsertLinkData(dt);
-                    //DataTable_to_csv(dt);//チェック用
-
-                    count++;
                 }
 
+
+                reader.Close();
+                if (posList != null)
+                {
+                    String[] split = posList.Split(new char[] { '\n' });    //座標リストは複数行に渡るので、改行の度にsplitして配列に保存
+
+
+                    for (int i = 0; i < split.Length; i++)                  //座標リストの行数だけインサートを繰り返す
+                    {
+                        if (!(split[i].Equals("") || split[i].Equals(" ")))
+                        {
+                            String[] split2 = split[i].Split(new char[] { ' ' });   //座標リストは"緯度 経度"の形になっているので、空白でsplit
+                            float latitude = float.Parse(split2[0]);
+                            float longitude = float.Parse(split2[1]);
+
+                            DataRow dr = dt.NewRow();
+
+                            dr["LINK_ID"] = id;
+                            dr["LATITUDE"] = latitude;
+                            dr["LONGITUDE"] = longitude;
+                            dr["ROAD_TYPE"] = type;
+                            dr["ROAD_CATEGORY"] = rdCtg;
+                            dr["ROAD_STATE"] = state;
+                            dr["ROAD_WIDTH"] = rnkWidth;
+                            dr["TOLL"] = tollSect;
+                            dt.Rows.Add(dr);
+                        }
+                    }
+                    insertdb.InsertLinkData(dt);
+                    count++;
+                }
                 label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
                 label_state.Text = "";
             }

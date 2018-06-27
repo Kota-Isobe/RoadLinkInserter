@@ -21,7 +21,7 @@ namespace XMLFileReader
 
         public void InsertLinkData(DataTable dt)
         {
-            mainform.Label_state = "LINKS_testに挿入中";
+            mainform.Label_state = "LINK_testに挿入中";
             Application.DoEvents();
 
             try
@@ -30,7 +30,7 @@ namespace XMLFileReader
 
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnection))
                 {
-                    bulkCopy.DestinationTableName = "LINKS_test";
+                    bulkCopy.DestinationTableName = "LINK_test";
 
                     bulkCopy.WriteToServer(dt);
                 }
@@ -45,7 +45,7 @@ namespace XMLFileReader
 
         public void LinksDataGetter(DataTable dt)
         {
-            mainform.Label_state = "LINKS_testに挿入中";
+            mainform.Label_state = "LINK_testに挿入中";
             Application.DoEvents();
 
             try
@@ -54,7 +54,7 @@ namespace XMLFileReader
 
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnection))
                 {
-                    bulkCopy.DestinationTableName = "LINKS_test";
+                    bulkCopy.DestinationTableName = "LINK_test";
 
                     bulkCopy.WriteToServer(dt);
                 }
