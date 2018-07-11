@@ -77,6 +77,10 @@ namespace XMLFileReader
 
             foreach (string filefullname in filefullnames)
             {
+                label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
+                label_state.Text = filenames[count] + "を読み込み中";
+                Application.DoEvents();
+
                 DataTable dt = new DataTable();
                 dt.Columns.Add(new DataColumn("LINK_ID"));
                 dt.Columns.Add(new DataColumn("LATITUDE"));
@@ -87,10 +91,6 @@ namespace XMLFileReader
                 dt.Columns.Add(new DataColumn("ROAD_WIDTH"));
                 dt.Columns.Add(new DataColumn("TOLL"));
 
-                label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
-                label_state.Text = filenames[count] + "を読み込み中";
-                Application.DoEvents();
-
                 XmlReaderSettings settings = new XmlReaderSettings();
                 settings.IgnoreWhitespace = true;
 
@@ -100,6 +100,17 @@ namespace XMLFileReader
                 {
                     if (reader.NodeType == XmlNodeType.Element)
                     {
+                        if (reader.LocalName.Equals("RdCL"))
+                        {
+                            id = null;
+                            posList = null;
+                            type = null;
+                            rdCtg = null;
+                            state = null;
+                            rnkWidth = null;
+                            tollSect = null;
+                        }
+
                         if (reader.LocalName.Equals("rID")) //タイプ名を指定
                         {
                             id = reader.ReadString();     //一致したタイプ名の中の値を取得
@@ -133,18 +144,15 @@ namespace XMLFileReader
                         if (reader.LocalName.Equals("tollSect"))
                         {
                             tollSect = reader.ReadString();
+                            reader.Close();
                         }
-
                     }
                 }
 
 
-                reader.Close();
                 if (posList != null)
                 {
                     String[] split = posList.Split(new char[] { '\n' });    //座標リストは複数行に渡るので、改行の度にsplitして配列に保存
-
-
                     for (int i = 0; i < split.Length; i++)                  //座標リストの行数だけインサートを繰り返す
                     {
                         if (!(split[i].Equals("") || split[i].Equals(" ")))
@@ -164,15 +172,17 @@ namespace XMLFileReader
                             dr["ROAD_WIDTH"] = rnkWidth;
                             dr["TOLL"] = tollSect;
                             dt.Rows.Add(dr);
+                            insertdb.InsertLinkData(dt);
                         }
                     }
-                    insertdb.InsertLinkData(dt);
+
                     count++;
                 }
                 label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
                 label_state.Text = "";
             }
         }
+
         #region DataTableからcsvファイルを作成
         private void DataTable_to_csv(DataTable dt)
         {
