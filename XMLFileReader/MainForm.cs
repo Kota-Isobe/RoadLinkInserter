@@ -68,28 +68,23 @@ namespace XMLFileReader
         {
             int count = 0;
             string id = null;
+            string orgGILvl = null;
             string posList = null;
             string type = null;
             string rdCtg = null;
             string state = null;
+            string lvOrder = null;
             string rnkWidth = null;
             string tollSect = null;
+            string motorway = null;
+            string rtCode = null;
 
             foreach (string filefullname in filefullnames)
             {
                 label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
                 label_state.Text = filenames[count] + "を読み込み中";
                 Application.DoEvents();
-
-                DataTable dt = new DataTable();
-                dt.Columns.Add(new DataColumn("LINK_ID"));
-                dt.Columns.Add(new DataColumn("LATITUDE"));
-                dt.Columns.Add(new DataColumn("LONGITUDE"));
-                dt.Columns.Add(new DataColumn("ROAD_TYPE"));
-                dt.Columns.Add(new DataColumn("ROAD_CATEGORY"));
-                dt.Columns.Add(new DataColumn("ROAD_STATE"));
-                dt.Columns.Add(new DataColumn("ROAD_WIDTH"));
-                dt.Columns.Add(new DataColumn("TOLL"));
+                
 
                 XmlReaderSettings settings = new XmlReaderSettings();
                 settings.IgnoreWhitespace = true;
@@ -102,18 +97,73 @@ namespace XMLFileReader
                     {
                         if (reader.LocalName.Equals("RdCL"))
                         {
+                            if (posList != null)
+                            {
+                                String[] split = posList.Split(new char[] { '\n' });    //座標リストは複数行に渡るので、改行の度にsplitして配列に保存
+                                int l = split.Length;
+                                for (int i = 1; i <= l - 2; i++)                  //座標リストの行数だけインサートを繰り返す
+                                {
+                                    if (!(split[i].Equals("") || split[i].Equals(" ")))
+                                    {
+                                        String[] split2 = split[i].Split(new char[] { ' ' });   //座標リストは"緯度 経度"の形になっているので、空白でsplit
+                                        string latitude = split2[0];
+                                        string longitude = split2[1];
+
+
+                                        DataTable dt = new DataTable();
+                                        dt.Columns.Add(new DataColumn("LINK_ID"));
+                                        dt.Columns.Add(new DataColumn("SCALE"));
+                                        dt.Columns.Add(new DataColumn("LATITUDE"));
+                                        dt.Columns.Add(new DataColumn("LONGITUDE"));
+                                        dt.Columns.Add(new DataColumn("ROAD_TYPE"));
+                                        dt.Columns.Add(new DataColumn("ROAD_CATEGORY"));
+                                        dt.Columns.Add(new DataColumn("ROAD_STATE"));
+                                        dt.Columns.Add(new DataColumn("LEVEL_ORDER"));
+                                        dt.Columns.Add(new DataColumn("ROAD_WIDTH"));
+                                        dt.Columns.Add(new DataColumn("TOLL"));
+                                        dt.Columns.Add(new DataColumn("MOTORWAY"));
+                                        dt.Columns.Add(new DataColumn("ROUTE_CODE"));
+                                        DataRow dr = dt.NewRow();
+
+                                        dr["LINK_ID"] = id;
+                                        dr["SCALE"] = orgGILvl;
+                                        dr["LATITUDE"] = latitude;
+                                        dr["LONGITUDE"] = longitude;
+                                        dr["ROAD_TYPE"] = type;
+                                        dr["ROAD_CATEGORY"] = rdCtg;
+                                        dr["ROAD_STATE"] = state;
+                                        dr["LEVEL_ORDER"] = lvOrder;
+                                        dr["ROAD_WIDTH"] = rnkWidth;
+                                        dr["TOLL"] = tollSect;
+                                        dr["MOTORWAY"] = motorway;
+                                        dr["ROUTE_CODE"] = rtCode;
+                                        dt.Rows.Add(dr);
+                                        insertdb.InsertLinkData(dt);
+                                    }
+                                }
+                            }
+
                             id = null;
+                            orgGILvl = null;
                             posList = null;
                             type = null;
                             rdCtg = null;
                             state = null;
+                            lvOrder = null;
                             rnkWidth = null;
                             tollSect = null;
+                            motorway = null;
+                            rtCode = null;
                         }
 
                         if (reader.LocalName.Equals("rID")) //タイプ名を指定
                         {
                             id = reader.ReadString();     //一致したタイプ名の中の値を取得
+                        }
+
+                        if (reader.LocalName.Equals("orgGILvl"))
+                        {
+                            orgGILvl = reader.ReadString();
                         }
 
                         if (reader.LocalName.Equals("posList"))
@@ -131,6 +181,11 @@ namespace XMLFileReader
                             rdCtg = reader.ReadString();
                         }
 
+                        if (reader.LocalName.Equals("lvOrder"))
+                        {
+                            lvOrder = reader.ReadString();
+                        }
+
                         if (reader.LocalName.Equals("state"))
                         {
                             state = reader.ReadString();
@@ -144,40 +199,21 @@ namespace XMLFileReader
                         if (reader.LocalName.Equals("tollSect"))
                         {
                             tollSect = reader.ReadString();
-                            reader.Close();
                         }
-                    }
-                }
 
-
-                if (posList != null)
-                {
-                    String[] split = posList.Split(new char[] { '\n' });    //座標リストは複数行に渡るので、改行の度にsplitして配列に保存
-                    for (int i = 0; i < split.Length; i++)                  //座標リストの行数だけインサートを繰り返す
-                    {
-                        if (!(split[i].Equals("") || split[i].Equals(" ")))
+                        if (reader.LocalName.Equals("motorway"))
                         {
-                            String[] split2 = split[i].Split(new char[] { ' ' });   //座標リストは"緯度 経度"の形になっているので、空白でsplit
-                            float latitude = float.Parse(split2[0]);
-                            float longitude = float.Parse(split2[1]);
+                            motorway = reader.ReadString();
+                        }
 
-                            DataRow dr = dt.NewRow();
-
-                            dr["LINK_ID"] = id;
-                            dr["LATITUDE"] = latitude;
-                            dr["LONGITUDE"] = longitude;
-                            dr["ROAD_TYPE"] = type;
-                            dr["ROAD_CATEGORY"] = rdCtg;
-                            dr["ROAD_STATE"] = state;
-                            dr["ROAD_WIDTH"] = rnkWidth;
-                            dr["TOLL"] = tollSect;
-                            dt.Rows.Add(dr);
-                            insertdb.InsertLinkData(dt);
+                        if (reader.LocalName.Equals("rtCode"))
+                        {
+                            rtCode = reader.ReadString();
                         }
                     }
-
-                    count++;
                 }
+                reader.Close();
+                count++;
                 label1.Text = count.ToString() + "/" + filefullnames.Length + "の挿入が完了しました";
                 label_state.Text = "";
             }
