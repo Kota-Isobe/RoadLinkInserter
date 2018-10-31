@@ -67,6 +67,7 @@ namespace XMLFileReader
         private void button1_Click(object sender, EventArgs e)
         {
             int count = 0;
+            int num = 0;
             string id = null;
             string orgGILvl = null;
             string posList = null;
@@ -100,17 +101,21 @@ namespace XMLFileReader
                             if (posList != null)
                             {
                                 String[] split = posList.Split(new char[] { '\n' });    //座標リストは複数行に渡るので、改行の度にsplitして配列に保存
-                                int l = split.Length;
-                                for (int i = 1; i <= l - 2; i++)                  //座標リストの行数だけインサートを繰り返す
+                                int l = split.Length;                                   //座標リストの行数＝座標の数をlに代入
+                                for (int i = 1; i <= l - 2; i++)                        //座標リストの行数だけインサートを繰り返す
                                 {
+                                    num++;
                                     if (!(split[i].Equals("") || split[i].Equals(" ")))
                                     {
+
+
                                         String[] split2 = split[i].Split(new char[] { ' ' });   //座標リストは"緯度 経度"の形になっているので、空白でsplit
-                                        string latitude = split2[0];
-                                        string longitude = split2[1];
+                                        string latitude = split2[0];                            //splitした前半をlatitude
+                                        string longitude = split2[1];                           //後半をlongitudeに代入
 
 
                                         DataTable dt = new DataTable();
+                                        dt.Columns.Add(new DataColumn("NUM"));
                                         dt.Columns.Add(new DataColumn("LINK_ID"));
                                         dt.Columns.Add(new DataColumn("SCALE"));
                                         dt.Columns.Add(new DataColumn("LATITUDE"));
@@ -125,6 +130,7 @@ namespace XMLFileReader
                                         dt.Columns.Add(new DataColumn("ROUTE_CODE"));
                                         DataRow dr = dt.NewRow();
 
+                                        dr["NUM"] = num;
                                         dr["LINK_ID"] = id;
                                         dr["SCALE"] = orgGILvl;
                                         dr["LATITUDE"] = latitude;
